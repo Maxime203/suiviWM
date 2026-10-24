@@ -1,0 +1,730 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Suivi des prix Wikimasters</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+<style>
+/* Concept : une cote d'hôtel des ventes. Lots sur fond minéral, chiffres en chasse fixe, or réservé à la monnaie, tampon pour le verdict. */
+:root{
+ --bg:#e7ebf4;--cd:#ffffff;--cd2:#f3f5fb;
+ --tx:#0d1330;--mu:#566088;
+ --ac:#2a45ee;--on:#ffffff;--acs:rgba(42,69,238,.1);
+ --up:#0a8a56;--ups:rgba(10,138,86,.12);
+ --dn:#cf3948;--dns:rgba(207,57,72,.11);
+ --am:#b86f0c;--ams:rgba(184,111,12,.14);
+ --bd:#d6dcee;--bd2:#bcc6e2;
+ --gl:rgba(42,69,238,.07);--glow:rgba(42,69,238,.11);
+ --sh:0 1px 0 rgba(13,19,48,.04),0 12px 28px -16px rgba(13,19,48,.28);
+ --nv:0 14px 34px -12px rgba(13,19,48,.38);
+ --ms:52%;--mbl:92%;--mfl:27%;--mol:82%;
+ --c1:#2a45ee;--c2:#b86f0c;--c3:#0a8a56;--c4:#cf3948;--c5:#7d46cf;--c6:#0c8aa3;
+ --guil:repeating-radial-gradient(circle at 10% 135%,transparent 0 6px,var(--gl) 6px 7px),repeating-radial-gradient(circle at 98% -35%,transparent 0 8px,var(--gl) 8px 9px);
+ --fd:'Gloock','Newsreader',Georgia,'Times New Roman',serif;
+ --fb:'Hanken Grotesk',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+ --fm:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+ --bg:#070a18;--cd:#0f1531;--cd2:#151c3f;
+ --tx:#e8ecff;--mu:#8d98c6;
+ --ac:#8fa4ff;--on:#080e2c;--acs:rgba(143,164,255,.15);
+ --up:#3fd89c;--ups:rgba(63,216,156,.14);
+ --dn:#ff8a96;--dns:rgba(255,138,150,.14);
+ --am:#f0b64f;--ams:rgba(240,182,79,.16);
+ --bd:#1f2756;--bd2:#2f3b72;
+ --gl:rgba(143,164,255,.09);--glow:rgba(88,112,255,.2);
+ --sh:0 1px 0 rgba(255,255,255,.04) inset,0 14px 30px -16px rgba(0,0,0,.75);
+ --nv:0 14px 34px -10px rgba(0,0,0,.8);
+ --ms:42%;--mbl:21%;--mfl:84%;--mol:31%;
+ --c1:#8fa4ff;--c2:#f0b64f;--c3:#3fd89c;--c4:#ff8a96;--c5:#bf9bff;--c6:#4fd0e8;
+ color-scheme:dark}}
+:root[data-theme="dark"]{
+ --bg:#070a18;--cd:#0f1531;--cd2:#151c3f;
+ --tx:#e8ecff;--mu:#8d98c6;
+ --ac:#8fa4ff;--on:#080e2c;--acs:rgba(143,164,255,.15);
+ --up:#3fd89c;--ups:rgba(63,216,156,.14);
+ --dn:#ff8a96;--dns:rgba(255,138,150,.14);
+ --am:#f0b64f;--ams:rgba(240,182,79,.16);
+ --bd:#1f2756;--bd2:#2f3b72;
+ --gl:rgba(143,164,255,.09);--glow:rgba(88,112,255,.2);
+ --sh:0 1px 0 rgba(255,255,255,.04) inset,0 14px 30px -16px rgba(0,0,0,.75);
+ --nv:0 14px 34px -10px rgba(0,0,0,.8);
+ --ms:42%;--mbl:21%;--mfl:84%;--mol:31%;
+ --c1:#8fa4ff;--c2:#f0b64f;--c3:#3fd89c;--c4:#ff8a96;--c5:#bf9bff;--c6:#4fd0e8;
+ color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background-color:var(--bg);background-image:radial-gradient(820px 380px at 50% -140px,var(--glow),transparent 72%);background-repeat:no-repeat;color:var(--tx);font:16px/1.45 var(--fb);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+main{max-width:640px;margin:0 auto;padding-block:6px 128px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3,p,ul,ol{margin:0}
+small{font-size:13px}
+.mu{color:var(--mu)}
+.up{color:var(--up)!important}.dn{color:var(--dn)!important}
+
+/* en-tête */
+.hd{display:flex;align-items:center;gap:14px;padding:12px 0 20px}
+.mark{width:48px;height:48px;flex:none;filter:drop-shadow(0 6px 10px rgba(160,107,22,.3))}
+h1{font:400 30px/1.04 var(--fd);letter-spacing:-.01em;text-wrap:balance}
+.hd small{display:block;margin-top:5px;font:500 12px/1.3 var(--fm);color:var(--mu)}
+.vt{font:400 32px/1.05 var(--fd);margin:4px 0 14px}
+h3{font:600 11px/1.2 var(--fb);letter-spacing:.13em;text-transform:uppercase;color:var(--mu);margin:20px 0 8px}
+.vk{font:600 11px/1.2 var(--fb);letter-spacing:.13em;text-transform:uppercase;color:var(--mu)}
+.foot{font:500 12px/1.5 var(--fm);color:var(--mu);margin:4px 2px 0}
+.cap{font:500 12px/1.3 var(--fm);color:var(--mu);margin:2px 2px 8px}
+
+/* surfaces */
+.box{background:var(--cd);border:1px solid var(--bd);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:var(--sh)}
+.box h3.bh{font:400 24px/1.1 var(--fd);letter-spacing:0;text-transform:none;color:var(--tx);margin:0 0 10px}
+details{background:var(--cd);border:1px solid var(--bd);border-radius:18px;padding:0 16px;margin:0 0 12px;box-shadow:var(--sh)}
+summary,summary.mu{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:15px 0;font:600 15px/1.3 var(--fb);color:var(--tx);cursor:pointer;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"";flex:none;width:8px;height:8px;margin-right:3px;border-right:2px solid var(--mu);border-bottom:2px solid var(--mu);transform:rotate(-45deg);transition:transform .2s}
+details[open]>summary::after{transform:rotate(45deg)}
+details>:last-child{margin-bottom:14px}
+.box details{border:0;box-shadow:none;padding:0;margin:8px 0 0;background:none}
+
+/* champs et boutons */
+input,textarea,select{width:100%;font:inherit;font-size:16px;color:var(--tx);background:var(--cd2);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;outline:0;transition:border-color .15s,box-shadow .15s}
+input::placeholder,textarea::placeholder{color:var(--mu);opacity:.85}
+input:focus,textarea:focus,select:focus{border-color:var(--ac);box-shadow:0 0 0 4px var(--acs)}
+select{width:auto;padding-right:34px;-webkit-appearance:none;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--mu) 50%),linear-gradient(135deg,var(--mu) 50%,transparent 50%);background-position:calc(100% - 18px) 55%,calc(100% - 13px) 55%;background-size:5px 5px;background-repeat:no-repeat}
+textarea{height:116px;margin:10px 0 0;resize:vertical}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{font:inherit;cursor:pointer;color:inherit;-webkit-tap-highlight-color:transparent}
+button:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.pri{width:100%;margin-top:12px;padding:14px;border:0;border-radius:14px;background:var(--ac);color:var(--on);font-weight:700;letter-spacing:.01em;box-shadow:0 10px 20px -10px var(--ac);transition:transform .1s}
+.pri:active{transform:translateY(1px)}
+.lk{background:var(--cd2);border:1px solid var(--bd);border-radius:12px;padding:9px 14px;color:var(--ac);font-weight:600;font-size:14px;transition:border-color .15s}
+.lk:hover{border-color:var(--bd2)}
+.lk.pri{width:auto;margin:0;padding:9px 16px;border:0;background:var(--ac);color:var(--on);box-shadow:none}
+.back{display:inline-flex;align-items:center;gap:4px;padding:8px 14px 8px 8px;margin-bottom:12px}
+.back svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.lg{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:center;font-size:14px;margin:0 0 12px}
+.lg label{display:inline-flex;align-items:center;gap:10px;color:var(--mu)}
+.lg #cin,.lg #pin,.lg #psin{width:150px;padding:10px 12px}
+.lg #tgb,.lg #tgs{width:104px;padding:10px 12px}
+input[type=checkbox]{-webkit-appearance:none;appearance:none;width:38px;height:22px;padding:0;border:0;border-radius:999px;background:var(--bd2);position:relative;flex:none;cursor:pointer;transition:background .18s}
+input[type=checkbox]::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .18s}
+input[type=checkbox]:checked{background:var(--ac)}
+input[type=checkbox]:checked::after{transform:translateX(16px)}
+.chip{display:inline-flex;align-items:center;border:1px solid var(--bd);border-radius:999px;padding:6px 13px;background:var(--cd2);color:var(--mu);font-weight:600;cursor:pointer}
+.chip input{display:none}
+.chip:has(input:checked){background:var(--acs);border-color:var(--ac);color:var(--ac)}
+
+/* onglets */
+.tabs{display:flex;gap:8px;overflow-x:auto;margin:0 0 10px;padding:2px 0 6px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;border:1px solid var(--bd);background:var(--cd);color:var(--mu);border-radius:999px;padding:8px 15px;font-size:14px;font-weight:600;transition:background .15s,color .15s}
+.tab.on{background:var(--tx);border-color:var(--tx);color:var(--bg)}
+
+/* monnaie, médaillon, pastilles */
+.coin{display:inline-block;flex:none;width:.78em;height:.78em;border-radius:50%;background:radial-gradient(circle at 32% 28%,#fbe9ae,#dcae48 55%,#a9751d);box-shadow:inset 0 0 0 1px rgba(110,70,8,.45),0 1px 2px rgba(110,70,8,.3)}
+.coin.big{position:relative;width:48px;height:48px}
+.coin.big::after{content:"";position:absolute;inset:7px;border-radius:50%;border:1.5px solid rgba(255,246,214,.75)}
+.med{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font:400 17px/1 var(--fd);letter-spacing:.02em;background:hsl(var(--h) var(--ms) var(--mbl));color:hsl(var(--h) var(--ms) var(--mfl));box-shadow:inset 0 0 0 1px hsl(var(--h) var(--ms) var(--mol))}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font:700 11px/1.4 var(--fb);letter-spacing:.07em;text-transform:uppercase;background:var(--cd2);color:var(--mu);border:1px solid var(--bd)}
+.pill.up,.pill.dn{border-color:transparent}
+.pill.up{background:var(--ups)}.pill.dn{background:var(--dns)}
+.pill.up::before,.pill.dn::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.chg{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:8px;font:600 12px/1.5 var(--fm);background:var(--cd2);color:var(--mu);white-space:nowrap}
+.chg::before{content:"";width:7px;height:6px;background:currentColor;clip-path:polygon(50% 0,100% 100%,0 100%)}
+.chg.ad::before{transform:rotate(180deg)}
+.chg.nl::before{display:none}
+.chg.up{background:var(--ups)}.chg.dn{background:var(--dns)}
+.tg{display:inline-block;margin-right:8px;padding:2px 7px;border-radius:6px;font:700 10px/1.5 var(--fb);font-style:normal;letter-spacing:.09em;text-transform:uppercase;vertical-align:1px;background:var(--cd2);color:var(--mu)}
+.tg.vente{background:var(--ams);color:var(--am)}
+.tg.cible{background:var(--acs);color:var(--ac)}
+.tg.affaire,.tg.fin{background:var(--ups);color:var(--up)}
+
+/* liste des cartes */
+.row{display:grid;grid-template-columns:44px minmax(0,1fr) 64px auto;align-items:center;gap:12px;width:100%;text-align:left;background:var(--cd);color:var(--tx);border:1px solid var(--bd);border-radius:18px;padding:12px 14px;margin-bottom:10px;box-shadow:var(--sh);transition:transform .12s,border-color .15s}
+.row:hover{border-color:var(--bd2)}
+.row:active{transform:scale(.985)}
+.rm{min-width:0;display:block}
+.nm{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font:400 19px/1.15 var(--fd);letter-spacing:0}
+.rm small{display:block;margin-top:3px;font:500 12px/1.3 var(--fm);color:var(--mu)}
+.sgs{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.sgs:empty{display:none}
+.sgs .pill{padding:2px 9px;font-size:10.5px}
+.pr{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.px{display:inline-flex;align-items:center;gap:7px;font:700 17px/1 var(--fm);letter-spacing:-.02em;white-space:nowrap}
+.spk{width:64px;height:30px;flex:none;overflow:visible;--c:var(--mu)}
+.spk.up{--c:var(--up)}.spk.dn{--c:var(--dn)}
+.spk .ln{fill:none;stroke:var(--c);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.spk circle{fill:var(--c);stroke:none}
+.spk .gd{fill:none;stroke:var(--bd2);stroke-dasharray:2 3}
+@media (max-width:359px){.row{grid-template-columns:minmax(0,1fr) 56px auto}.med{display:none}}
+
+/* lignes de détail */
+.it{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--bd)}
+.it:last-child{border-bottom:0}
+.it>span:first-child{min-width:0}
+.it small{display:block;margin-top:2px;color:var(--mu)}
+.nm2{display:block;font-weight:600;font-size:15px;overflow-wrap:anywhere}
+.it>b,.pv{display:inline-flex;align-items:center;gap:6px;font:700 15px/1 var(--fm);white-space:nowrap}
+.pvx{display:inline-flex;align-items:center;gap:10px}
+.pvx b{display:inline-flex;align-items:center;gap:6px;font:700 15px/1 var(--fm);white-space:nowrap}
+.cd{font-family:var(--fm);color:var(--tx)}
+.chs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.box>.lk{margin-top:10px}
+
+/* portefeuille */
+.pf .vh{margin-bottom:10px}
+.pfv{display:flex;align-items:center;gap:12px;font:700 34px/1 var(--fm);letter-spacing:-.03em}
+.pfv .coin{width:.6em;height:.6em}
+.pfg{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:10px;margin-top:14px}
+.pfg:empty{display:none}
+.pfg>div{background:var(--cd2);border:1px solid var(--bd);border-radius:14px;padding:10px 12px}
+.pfg small{display:block;font:600 10px/1.2 var(--fb);letter-spacing:.11em;text-transform:uppercase;color:var(--mu)}
+.pfg b{display:block;margin-top:5px;font:700 17px/1 var(--fm);letter-spacing:-.02em}
+.pn{margin-bottom:2px}
+
+/* fiche d'une carte */
+.hero{position:relative;overflow:hidden;border-radius:24px;padding:20px 18px 18px;margin:0 0 14px;background:var(--cd);border:1px solid var(--bd);box-shadow:var(--sh)}
+.hero::before{content:"";position:absolute;inset:0;background:var(--guil);pointer-events:none;-webkit-mask-image:linear-gradient(115deg,#000,transparent 72%);mask-image:linear-gradient(115deg,#000,transparent 72%)}
+.hero>*{position:relative}
+.hero h2{font:400 clamp(30px,9vw,42px)/1.02 var(--fd);margin:10px 0 14px;text-wrap:balance;overflow-wrap:anywhere}
+.hp{display:flex;align-items:center;flex-wrap:wrap;gap:10px 14px}
+.hp b{display:inline-flex;align-items:center;gap:11px;font:700 38px/1 var(--fm);letter-spacing:-.04em}
+.hp .coin{width:.6em;height:.6em}
+.top{display:grid;gap:14px;margin-bottom:14px}
+.top>.hero,.top>.box{margin:0}
+@media (min-width:760px){.top{grid-template-columns:1fr 1.3fr;align-items:stretch}}
+.vd{padding:16px}
+.vh{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.stamp{display:inline-block;padding:8px 15px 7px;border:2px solid currentColor;border-radius:8px;font:400 22px/1 var(--fd);letter-spacing:.07em;text-transform:uppercase;transform:rotate(-3deg);box-shadow:inset 0 0 0 3px var(--cd),inset 0 0 0 4px currentColor;color:var(--tx)}
+.vl{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:7px}
+.vl li{display:flex;gap:10px;font-size:14px;color:var(--mu)}
+.vl li::before{content:"";flex:none;width:5px;height:5px;margin-top:8px;border-radius:50%;background:var(--bd2)}
+.vn{margin-top:10px}
+.adv{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.at{min-width:0;background:var(--cd2);border:1px solid var(--bd);border-radius:16px;padding:12px 14px}
+.at small{display:block;font:600 10px/1.2 var(--fb);letter-spacing:.11em;text-transform:uppercase;color:var(--mu)}
+.at b{display:flex;align-items:center;gap:9px;margin:9px 0 7px;font:700 28px/1 var(--fm);letter-spacing:-.04em}
+.at .coin{width:.6em;height:.6em}
+.as{display:block;font-size:12px;line-height:1.35;color:var(--mu)}
+.clk{width:28px;height:28px;flex:none;fill:none;stroke:var(--mu);stroke-width:1.5;stroke-linecap:round}
+.clk .hd{stroke:var(--ac);stroke-width:2.2}
+.clk .dt{fill:var(--ac);stroke:none}
+.rule{margin-top:14px;padding-top:12px;border-top:1px solid var(--bd);font-size:12.5px;line-height:1.5;color:var(--mu)}
+@media (max-width:339px){.adv{grid-template-columns:1fr}}
+
+/* chiffres clés */
+.st{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:6px 0 10px}
+.st>div{min-width:0;background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:10px 12px;box-shadow:var(--sh)}
+.st small{display:block;font:600 10px/1.2 var(--fb);letter-spacing:.09em;text-transform:uppercase;color:var(--mu)}
+.st b{display:block;margin-top:6px;font:700 18px/1 var(--fm);letter-spacing:-.03em;color:var(--tx)}
+.st b.mn{color:var(--up)}.st b.mx{color:var(--dn)}.st b.av{color:var(--ac)}
+@media (max-width:459px){.st{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* graphiques */
+.mn{--c:var(--up)}.av{--c:var(--ac)}.mx{--c:var(--dn)}.nb{--c:var(--am)}
+.lg .mn,.lg .av,.lg .mx,.lg .nb{color:var(--c);font-weight:600}
+.lgi b{color:var(--tx);font-family:var(--fm)}
+.lgi span{color:var(--tx)}
+.cc{background:var(--cd);border:1px solid var(--bd);border-radius:18px;padding:12px 10px 6px;margin:8px 0 12px;box-shadow:var(--sh)}
+.ch{display:block;width:100%;height:auto;overflow:visible}
+.ch text{fill:var(--mu);font:500 8.5px var(--fm)}
+.ch .gl{stroke:var(--bd);stroke-width:1;stroke-dasharray:2 3}
+.ch .bs0{stroke:var(--bd2);stroke-width:1;stroke-dasharray:4 3}
+.ch .ln{fill:none;stroke:var(--c,var(--ac));stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ch .ln.mn,.ch .ln.mx{stroke-width:1.4;stroke-dasharray:3 3;opacity:.9}
+.ch circle,.ch polygon{fill:var(--c,var(--ac));stroke:none}
+.ch .hl{opacity:.2}
+.ch .band{fill:var(--acs);stroke:none}
+.ch .xh{stroke:var(--tx);stroke-opacity:.35;stroke-width:1}
+.ch rect.p{fill:var(--up);opacity:.5}.ch rect.n{fill:var(--dn);opacity:.5}.ch rect.bs{opacity:1}
+.ch text.bl{fill:var(--up);font-weight:700}
+#snapsvg{touch-action:pan-y;cursor:crosshair}
+.dgrid>div{min-width:0}
+
+/* état vide */
+.empty{position:relative;overflow:hidden;border:1.5px dashed var(--bd2);border-radius:24px;padding:30px 22px 24px;background:var(--cd)}
+.empty::before{content:"";position:absolute;inset:0;background:var(--guil);pointer-events:none;-webkit-mask-image:linear-gradient(160deg,#000,transparent 65%);mask-image:linear-gradient(160deg,#000,transparent 65%)}
+.empty>*{position:relative}
+.empty h2{font:400 28px/1.1 var(--fd);margin:16px 0 8px}
+.empty p{color:var(--mu);max-width:36ch}
+
+/* importation */
+.steps{list-style:none;counter-reset:s;margin:12px 0 4px;padding:0;display:grid;gap:11px}
+.steps li{counter-increment:s;display:flex;gap:12px;align-items:flex-start;font-size:15px;line-height:1.4}
+.steps li::before{content:counter(s);flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:700 12px/1 var(--fm);background:var(--acs);color:var(--ac)}
+details p.mu{font-size:13.5px;line-height:1.5;margin-top:10px}
+
+/* notification et navigation */
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:11px 18px;border-radius:999px;font-size:14px;font-weight:600;max-width:90vw;opacity:0;pointer-events:none;z-index:30;box-shadow:0 10px 26px rgba(0,0,0,.28)}
+.toast.a{animation:ta 4.5s forwards}.toast.b{animation:tb 4.5s forwards}
+@keyframes ta{0%{opacity:0;transform:translate(-50%,8px)}8%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,0)}}
+@keyframes tb{0%{opacity:0;transform:translate(-50%,8px)}8%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,0)}}
+#nav{position:fixed;z-index:20;bottom:calc(12px + env(safe-area-inset-bottom,0px));left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));margin:0 auto;max-width:400px;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:6px;border-radius:22px;background:var(--cd);border:1px solid var(--bd);box-shadow:var(--nv)}
+@supports (backdrop-filter:blur(1px)) and (background:color-mix(in srgb,red 50%,blue)){#nav{background:color-mix(in srgb,var(--cd) 78%,transparent);-webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5)}}
+#nav button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 8px;border:0;background:none;color:var(--mu);font:600 11px/1 var(--fb);border-radius:16px;transition:background .15s,color .15s}
+#nav button.on{background:var(--acs);color:var(--ac)}
+#nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media (min-width:760px){main{max-width:960px}.dgrid{display:grid;grid-template-columns:1.45fr 1fr;gap:18px;align-items:start}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.toast.a,.toast.b{animation-name:fa}.toast.b{animation-name:fb}@keyframes fa{0%{opacity:0}8%,85%{opacity:1}100%{opacity:0}}@keyframes fb{0%{opacity:0}8%,85%{opacity:1}100%{opacity:0}}}
+/* catégories globales, images de cartes, graphique des heures */
+.tabs:empty{display:none}
+.med.ph{padding:0;overflow:hidden;background:var(--cd2)}
+.med img{width:100%;height:100%;object-fit:cover;display:block}
+.hero>.pic{position:absolute;top:18px;right:18px;width:84px;height:84px;object-fit:cover;border-radius:22px;background:var(--cd2);box-shadow:0 0 0 1px var(--bd),0 12px 22px -12px rgba(13,19,48,.55)}
+.hero.hasp{min-height:168px}
+.hero.hasp h2,.hero.hasp .vk{padding-right:100px}
+.imr{margin:16px 0 0}
+.imr .mu{flex:1 1 200px;font-size:12.5px;line-height:1.4}
+.ch .ap{fill:var(--up);opacity:.22;stroke:none}
+.ch .an{fill:var(--dn);opacity:.2;stroke:none}
+.ch .cv{fill:var(--bd2);stroke:none}
+.ch .hr{fill:none;stroke:var(--ac);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ch circle.dp{fill:var(--ac);stroke:none}
+.ch circle.bk{fill:var(--up);stroke:var(--cd);stroke-width:2}
+.note{font-size:13px;line-height:1.5;margin:10px 0 8px}
+/* réglage global des mises de départ, stockage */
+.opt{display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;margin:0 0 16px;font-size:13px;color:var(--mu)}
+.opt label{display:inline-flex;align-items:center;gap:10px;color:var(--tx);font-weight:600}
+.opt .mu{flex:1 1 220px;font-size:12px;line-height:1.4}
+.opt:empty{display:none}
+.meter{height:8px;border-radius:99px;background:var(--bd2);overflow:hidden;margin:10px 0 12px}
+.meter i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--ac),var(--am))}
+</style>
+<main>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<linearGradient id="gAc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ac);stop-opacity:.32"/><stop offset="1" style="stop-color:var(--ac);stop-opacity:0"/></linearGradient>
+<linearGradient id="gNb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--am);stop-opacity:.34"/><stop offset="1" style="stop-color:var(--am);stop-opacity:0"/></linearGradient>
+<linearGradient id="gUp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--up);stop-opacity:.34"/><stop offset="1" style="stop-color:var(--up);stop-opacity:0"/></linearGradient>
+<linearGradient id="gDn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--dn);stop-opacity:.34"/><stop offset="1" style="stop-color:var(--dn);stop-opacity:0"/></linearGradient>
+<linearGradient id="gMu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--mu);stop-opacity:.26"/><stop offset="1" style="stop-color:var(--mu);stop-opacity:0"/></linearGradient>
+</defs></svg>
+<header class="hd"><svg class="mark" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="gCoin" x1=".15" y1="0" x2=".85" y2="1"><stop offset="0" stop-color="#fbe7a6"/><stop offset=".5" stop-color="#d9aa42"/><stop offset="1" stop-color="#a06b16"/></linearGradient></defs><circle cx="24" cy="24" r="22.5" fill="url(#gCoin)"/><circle cx="24" cy="24" r="18.6" fill="none" stroke="#fff6d6" stroke-opacity=".7" stroke-width="1.2"/><circle cx="24" cy="24" r="20.6" fill="none" stroke="#6b4408" stroke-opacity=".38" stroke-width=".8" stroke-dasharray="1.1 2.3"/><path d="M13.5 30.5l7-7.5 5 4.5 9-10.5" fill="none" stroke="#4a2d05" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M28 16.5h6.5V23" fill="none" stroke="#4a2d05" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><div><h1>Suivi des prix</h1><small id="sub" class="mu"></small></div></header>
+<div id="cts" class="tabs"></div>
+<div id="opt" class="opt"></div>
+<section id="v-cards">
+<div id="fin"></div>
+<div id="pf"></div>
+<div id="srt" class="tabs"></div>
+<div id="list"></div>
+<div id="detail" hidden></div>
+</section>
+<section id="v-mkt" style="display:none">
+<h2 class="vt">Marché</h2>
+<p id="mk0" class="mu"></p>
+<div id="rdr"></div>
+<div id="rep"></div>
+<div id="hrs"></div>
+<div id="cmp"></div>
+</section>
+<section id="v-imp" style="display:none">
+<div class="box">
+ <h3 class="bh">Importer un relevé du marché</h3>
+ <ol class="steps"><li>Sur Wikimasters, ouvre le marché (avec tes filtres habituels).</li><li>Appui long sur du texte, « Tout sélectionner », puis Copier.</li><li>Colle ici et touche Importer.</li></ol>
+ <textarea id="pg" placeholder="Colle ici le texte copié de la page du marché"></textarea>
+ <button class="pri" id="pb">Importer</button>
+</div>
+<details><summary class="mu">Relevés automatiques</summary>
+ <p class="mu">Un petit script Tampermonkey relève le marché Wikimasters tout seul, à intervalle régulier, tant qu’un onglet reste ouvert sur la page du marché, puis l’envoie ici. Les alertes s’accumulent jusqu’à ce que tu les fermes avec OK.</p>
+ <ol class="steps"><li>Installe l’extension Tampermonkey (Chrome, Edge ou Firefox sur ordinateur, ou Firefox sur Android).</li><li>Crée un nouveau script et colle le contenu du fichier « Releves-auto-Wikimasters.user.js ».</li><li>Ouvre le marché Wikimasters et laisse l’onglet ouvert : un badge « Suivi » apparaît en bas à gauche.</li></ol>
+</details>
+<details><summary class="mu">Saisie manuelle d’un prix</summary>
+ <div class="g">
+  <input id="c" list="dl" placeholder="Carte (ex. Ada Lovelace)" style="grid-column:1/3">
+  <input id="p" inputmode="decimal" placeholder="Prix (wikibidous)">
+  <input id="d" type="date">
+ </div>
+ <datalist id="dl"></datalist>
+ <button class="pri" id="add">Ajouter</button>
+</details>
+<details><summary class="mu">Stockage</summary>
+ <div id="sto"></div>
+</details>
+<details><summary class="mu">Sauvegarde</summary>
+ <textarea id="io" placeholder="Les données exportées apparaissent ici. Colle une sauvegarde pour l’importer."></textarea>
+ <div class="g"><button class="lk" id="ex">Exporter</button><button class="lk" id="im">Importer (remplace tout)</button></div>
+ <p class="mu">Les relevés sont enregistrés dans ce navigateur uniquement. Exporte régulièrement pour ne rien perdre.</p>
+</details>
+</section>
+<div id="msg" class="toast"></div>
+<nav id="nav"></nav>
+</main>
+
+<script>
+const K='wm-prix-v1',$=s=>document.querySelector(s);
+let D=[],sel=null;
+try{D=JSON.parse(localStorage.getItem(K)||'[]')}catch(e){D=[]}
+let S=[];try{S=JSON.parse(localStorage.getItem('wm-snap-v1')||'[]')}catch(e){S=[]}
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(D));localStorage.setItem('wm-snap-v1',JSON.stringify(S));localStorage.setItem('wm-end-v1',JSON.stringify(E));localStorage.setItem('wm-ventes-v1',JSON.stringify(V));localStorage.setItem('wm-cat-v1',JSON.stringify(C));localStorage.setItem('wm-pos-v1',JSON.stringify(P));localStorage.setItem('wm-tg-v1',JSON.stringify(TG));localStorage.setItem('wm-jrn-v1',JSON.stringify(J));localStorage.setItem('wm-img-v1',JSON.stringify(IM))}catch(e){try{msg('Stockage du navigateur plein : exporte une sauvegarde puis allège les relevés (Importer).')}catch(x){}}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=n=>n.toLocaleString('fr-FR');
+const dfr=s=>s.split('-').reverse().join('/');
+let inc=false;try{if(localStorage.getItem('wm-inc')==='1')inc=true}catch(e){}
+const IMOK=/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/;
+let IM={};try{IM=JSON.parse(localStorage.getItem('wm-img-v1'))||{}}catch(e){IM={}}
+if(typeof IM!=='object'||Array.isArray(IM))IM={};
+const b64u=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const wikiUrl=n=>'https://fr.wikipedia.org/w/index.php?search='+encodeURIComponent(n)+'&go=Go#wm'+b64u(n);
+const inCat=k=>cf===null||(cf==='_'?!C.map[k]:C.map[k]===cf);
+const fgroups=()=>{const G=groups(),o={};Object.keys(G).forEach(k=>{if(inCat(k))o[k]=G[k]});return o};
+const avatar=n=>{const im=IM[String(n).toLowerCase()],ok=im&&IMOK.test(im);return `<span class="med${ok?' ph':''}" style="--h:${hue(n)}">${ok?`<img alt="" src="${im}">`:esc(ini(n))}</span>`};
+const imgRow=g=>{const has=IM[g.name.toLowerCase()];return `<div class="lg imr"><a class="lk" href="${esc(wikiUrl(g.name))}" target="_blank" rel="noopener">${has?'Changer l’image (Wikipédia)':'Image depuis Wikipédia'}</a>${has?'<button class="lk" id="imdel">Retirer</button>':'<span class="mu">Sur la page Wikipédia, touche ton favori pour rapporter l’image.</span>'}</div>`};
+const IC={
+ cards:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="6" width="12.5" height="14" rx="2.6"/><path d="M8 3.8h9.4a3.1 3.1 0 0 1 3.1 3.1V16"/></svg>',
+ mkt:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 17.5l5.2-5.4 3.6 3.2 7.2-8.3"/><path d="M14.8 6.9h4.7v4.7"/></svg>',
+ imp:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10.5"/><path d="M7.6 10.3l4.4 4.4 4.4-4.4"/><path d="M4.5 16.5v1.8A1.7 1.7 0 0 0 6.2 20h11.6a1.7 1.7 0 0 0 1.7-1.7v-1.8"/></svg>',
+ back:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg>'
+};
+const PAL=['var(--c1)','var(--c2)','var(--c3)','var(--c4)','var(--c5)','var(--c6)'];
+const ini=n=>{const w=String(n).split(/[\s'’-]+/).filter(Boolean),a=w[0]||'?',b=w.length>1?w[w.length-1]:(a[1]||'');return(a[0]+(b[0]||'')).toUpperCase()};
+const hue=n=>{let h=7;for(const c of String(n).toLowerCase())h=(h*31+c.charCodeAt(0))%360;return h};
+const dtF=x=>new Date(x).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+const nz=(a,b)=>{const r=(b-a)||Math.max(1,Math.abs(b)*.1),raw=r/4,m=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/m,s=Math.max(1,(f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*m);let lo=Math.floor(a/s)*s,hi=Math.ceil(b/s)*s;if(hi===lo){lo=Math.max(0,lo-s);hi+=s}const t=[];for(let v=lo;v<=hi+s/2;v+=s)t.push(v);return{lo,hi,t}};
+const gid=c=>c==='up'?'gUp':c==='dn'?'gDn':'gMu';
+const EMPTY='<div class="empty"><span class="coin big"></span><h2>Aucune carte suivie</h2><p>Importe un premier relevé du marché, ou colle une sauvegarde pour retrouver tes données.</p><button class="pri" data-v="imp">Importer un relevé</button></div>';
+const clockSvg=h=>{const a=(h%12)*30*Math.PI/180,x=(12+7*Math.sin(a)).toFixed(1),y=(12-7*Math.cos(a)).toFixed(1);return `<svg class="clk" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5"/><path d="M12 3.6v1.6M20.4 12h-1.6M12 20.4v-1.6M3.6 12h1.6"/><path class="hd" d="M12 12L${x} ${y}"/><circle class="dt" cx="12" cy="12" r="1.4"/></svg>`};
+function spark(v,c){
+ const w=64,h=30,p=3;
+ if(v.length<2)return `<svg class="spk" viewBox="0 0 ${w} ${h}" aria-hidden="true"><path class="gd" d="M${p} ${h/2}H${w-p}"/></svg>`;
+ const mn=Math.min(...v),mx=Math.max(...v),r=mx-mn||1,q=v.map((y,i)=>[p+i*(w-2*p)/(v.length-1),h-p-(y-mn)/r*(h-2*p)]),d=q.map((o,i)=>(i?'L':'M')+o[0].toFixed(1)+' '+o[1].toFixed(1)).join(''),e=q.at(-1);
+ return `<svg class="spk ${c}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><path fill="url(#${gid(c)})" stroke="none" d="${d}L${e[0].toFixed(1)} ${h}L${q[0][0].toFixed(1)} ${h}Z"/><path class="ln" d="${d}"/><circle cx="${e[0].toFixed(1)}" cy="${e[1].toFixed(1)}" r="2.3"/></svg>`}
+const stHtml=k=>`<div><small>Min</small><b class="mn">${fmt(k.mn)}</b></div><div><small>Moy. quad.</small><b class="av">${fmt(k.av)}</b></div><div><small>Max</small><b class="mx">${fmt(k.mx)}</b></div><div><small>Annonces</small><b>${k.n}</b></div>`;
+let SC=null;
+function bindSC(){
+ const sv=$('#snapsvg');if(!sv||!SC)return;
+ const{Q,X,W}=SC,xh=sv.querySelector('#xh'),st=$('#sts'),cp=$('#stdt');
+ const set=i=>{const o=Q[i];st.innerHTML=stHtml(o.k);cp.textContent=(i===Q.length-1?'Dernier relevé · ':'Relevé · ')+dtF(o.x);xh.setAttribute('x1',X(o.x).toFixed(1));xh.setAttribute('x2',X(o.x).toFixed(1));xh.style.display=''};
+ const pm=e=>{const r=sv.getBoundingClientRect(),vx=(e.clientX-r.left)/r.width*W;let b=0,bd=1e9;Q.forEach((o,i)=>{const d=Math.abs(X(o.x)-vx);if(d<bd){bd=d;b=i}});set(b)};
+ sv.addEventListener('pointerdown',pm);
+ sv.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'||e.buttons)pm(e)});
+ sv.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'){st.innerHTML=stHtml(Q.at(-1).k);cp.textContent='Dernier relevé · '+dtF(Q.at(-1).x);xh.style.display='none'}});
+}
+const rms=a=>a.length?Math.sqrt(a.reduce((s,x)=>s+x*x,0)/a.length):0;
+const FEN=30*864e5;
+const ts=s=>new Date(s.d+'T'+s.t).getTime();
+/* Moyenne quadratique pondérée par le temps : interpolation linéaire entre relevés, sur les 30 derniers jours.
+   Ajouter des relevés rapprochés ne change donc pas la valeur de référence. */
+const trms=(pts,win=FEN)=>{
+ const m=new Map();
+ pts.forEach(o=>{if(isFinite(o.x)&&isFinite(o.y)){if(!m.has(o.x))m.set(o.x,[]);m.get(o.x).push(o.y)}});
+ const a=[...m].sort((p,q)=>p[0]-q[0]).map(([x,q])=>({x,y:rms(q)}));
+ if(!a.length)return null;
+ const lo=a.at(-1).x-win;let I2=0,T=0;
+ for(let i=1;i<a.length;i++){
+  let x0=a[i-1].x,y0=a[i-1].y;const x1=a[i].x,y1=a[i].y;
+  if(x1<=lo)continue;
+  if(x0<lo){y0+=(y1-y0)*(lo-x0)/(x1-x0);x0=lo}
+  const dt=x1-x0;I2+=(y0*y0+y0*y1+y1*y1)/3*dt;T+=dt;
+ }
+ return T>0?Math.sqrt(I2/T):a.at(-1).y;
+};
+let sk='date',sd=-1;
+let C={cats:[],map:{}},cf=null;try{const c=JSON.parse(localStorage.getItem('wm-cat-v1'));if(c&&c.cats)C=c}catch(e){}
+try{const q=localStorage.getItem('wm-cf');if(q)cf=q}catch(e){}
+let V=[];try{V=JSON.parse(localStorage.getItem('wm-ventes-v1')||'[]')}catch(e){V=[]}
+let P={};try{P=JSON.parse(localStorage.getItem('wm-pos-v1'))||{}}catch(e){P={}}
+const posBox=k=>{const o=P[k],has=o&&o.b!=null,sell=`<input id="psin" inputmode="decimal" placeholder="Prix de vente"><button class="lk pri" id="psell">J’ai vendu</button>`;return has?`<div class="lg"><span>Acheté à <b>${fmt(o.b)}</b> le ${dfr(o.d)}</span></div><div class="lg">${sell}<button class="lk" id="pdel">Retirer</button></div>`:o?`<div class="lg"><span class="mu">Possédée (détectée sur le marché)</span></div><div class="lg"><input id="pin" inputmode="decimal" placeholder="Prix d’achat"><button class="lk pri" id="padd">Enregistrer le prix</button></div><div class="lg">${sell}<button class="lk" id="pdel">Retirer</button></div>`:`<div class="lg"><input id="pin" inputmode="decimal" placeholder="Prix d’achat"><button class="lk pri" id="padd">J’ai acheté cette carte</button></div>`};
+const pfHtml=()=>{const G=fgroups(),JF=J.filter(o=>inCat(o.k));let n=0,inv=0,val=0;Object.entries(P).forEach(([k,o])=>{const g=G[k];if(!g||o.b==null)return;const c=met(g).l;if(!c)return;n++;inv+=o.b;val+=c});
+ if(!n&&!JF.length)return '';
+ const dd=n&&inv?(val/inv-1)*100:0,rl=JF.reduce((a,o)=>o.b!=null?a+o.p-o.b:a,0),sg=x=>(x>=0?'+':'')+fmt(Math.round(x));
+ const cell=(l,v,c)=>`<div><small>${l}</small><b${c?` class="${c}"`:''}>${v}</b></div>`;
+ return `<div class="box pf"><div class="vh"><span class="vk">Portefeuille${cf===null?'':' · '+(cf==='_'?'sans catégorie':esc(cf))}</span>${n?`<span class="chg ${dd>=0?'up':'dn'}${dd<0?' ad':''}">${(dd>=0?'+':'')+dd.toFixed(0)} %</span>`:''}</div>${n?`<div class="pfv"><i class="coin"></i>${fmt(Math.round(val))}</div>`:'<p class="mu pn">Aucune carte en stock</p>'}<div class="pfg">${n?cell('Investi',fmt(inv))+cell('Cartes',n):''}${JF.length?cell('Réalisé',sg(rl),rl>=0?'up':'dn'):''}</div>${JF.length?`<details><summary class="mu">Mes ventes (${JF.length})</summary>${[...JF].reverse().map(o=>`<div class="it"><span><b class="nm2">${esc(o.c)}</b><small>${dfr(o.d)}${o.b!=null?' · acheté '+fmt(o.b):''} → vendu ${fmt(o.p)}</small></span><span class="pvx"><b class="${o.b==null?'':o.p-o.b>=0?'up':'dn'}">${o.b==null?'—':sg(o.p-o.b)}</b><button class="lk" data-jd="${o.id}" aria-label="Supprimer cette vente">×</button></span></div>`).join('')}</details>`:''}</div>`};
+let TG={};try{TG=JSON.parse(localStorage.getItem('wm-tg-v1'))||{}}catch(e){TG={}}
+const tgBox=k=>{const o=TG[k]||{};return `<div class="lg"><span class="mu">Objectifs</span><input id="tgb" inputmode="decimal" placeholder="Achat ≤" value="${o.buy??''}"><input id="tgs" inputmode="decimal" placeholder="Vente ≥" value="${o.sell??''}"><button class="lk pri" id="tgsave">Enregistrer</button></div>`};
+function findAlerts(nw){
+ if(!nw.length)return;
+ const al=[],G=groups(),now=Date.now();
+ nw.forEach(s=>{
+  const k=s.c.toLowerCase(),g=G[k],tg=TG[k],ap=g?snaps(g).map(q=>({x:ts(q),y:(stat(q)||{}).av})).filter(z=>z.y!=null):[],ref=ap.length>1?trms(ap):null,st=stat(s),e0=ts(s);
+  s.l.forEach(x=>{const[p,kd,se,r]=x;if(kd==='d'&&!inc)return;
+   if(tg&&tg.buy&&p<=tg.buy)al.push({t:'cible',c:s.c,s:se,p,r,e:r>0?e0+r*1000:0,tx:'sous ta cible d’achat ('+fmt(tg.buy)+')'});
+   else if(ref&&p<=ref*0.85&&r>0&&r<=10800)al.push({t:'affaire',c:s.c,s:se,p,r,e:e0+r*1000,tx:'−'+Math.round((1-p/ref)*100)+' % vs moy. quad., fin bientôt'});
+  });
+  if(tg&&tg.sell&&st&&st.av>=tg.sell){const ad=g&&sellAdvice(g);al.push({t:'vente',c:s.c,s:'',p:st.av,r:0,e:0,tx:'moy. quad. ≥ ta cible de vente ('+fmt(tg.sell)+')'+(ad?' · prix conseillé '+fmt(ad.price)+(ad.h?' · fin '+ad.h.day+' '+ad.h.h+'h':''):'')})}
+ });
+ const key=o=>o.t+'|'+o.c+'|'+(o.s||''),fresh=new Set(al.map(key));
+ E.al=al.map(o=>({...o,at:now})).concat((E.al||[]).filter(o=>!fresh.has(key(o))&&!(o.e&&o.e<now)&&now-(o.at||now)<864e5)).slice(0,20);
+}
+const repHtml=()=>{const R=[];
+ Object.values(fgroups()).forEach(g=>{const a=snaps(g).map(stat).filter(Boolean);if(a.length>1){const l=a.at(-1).av,p=a.at(-2).av;if(p)R.push({n:g.name,d:(l/p-1)*100,l,p})}});
+ if(!R.length)return '';R.sort((a,b)=>b.d-a.d);
+  const f=o=>`<div class="it"><span><b class="nm2">${esc(o.n)}</b><small>${fmt(o.p)} → ${fmt(o.l)}</small></span><span class="chg ${o.d>=0?'up':'dn'}${o.d<0?' ad':''}">${(o.d>=0?'+':'')+o.d.toFixed(0)} %</span></div>`,up=R.filter(o=>o.d>0).slice(0,3),dn=R.filter(o=>o.d<0).slice(-3).reverse();
+  return `<details open><summary class="mu">Depuis le relevé précédent</summary>${up.length?'<h3>Hausses</h3>'+up.map(f).join(''):''}${dn.length?'<h3>Baisses</h3>'+dn.map(f).join(''):''}${up.length||dn.length?'':'<p class="mu">Aucun changement.</p>'}</details>`};
+const hourFx=pred=>{
+  const G=groups(),ref={},M={};
+  Object.entries(G).forEach(([k,g])=>{if(pred&&!pred(k))return;const ap=snaps(g).map(q=>({x:ts(q),y:(stat(q)||{}).av})).filter(z=>z.y!=null);if(ap.length){const v=trms(ap);if(v>0)ref[k]=v}});
+  S.slice().sort((a,b)=>(a.d+a.t).localeCompare(b.d+b.t)).forEach(s=>{const t=ts(s),k=s.c.toLowerCase();s.l.forEach(x=>{if(x[1]!=='m'||!x[2]||!x[3]||!ref[k])return;const e=t+x[3]*1000;M[k+'|'+x[2]+'|'+Math.round(e/18e5)]={e,r:x[0]/ref[k],w:Math.exp(-x[3]/7200)}})});
+  const A=Array.from({length:24},()=>({w:0,s:0,n:0}));
+  Object.values(M).forEach(o=>{if(o.w<.02)return;const z=A[new Date(o.e).getHours()];z.w+=o.w;z.s+=o.w*o.r*o.r;z.n++});
+  const tw=A.reduce((a,z)=>a+z.w,0),ts2=A.reduce((a,z)=>a+z.s,0),g0=tw>0?Math.sqrt(ts2/tw):1,K=[.25,.6,1,.6,.25];
+  const Z=A.map((z0,h)=>{let w=0,s=0;K.forEach((kk,d)=>{const z=A[(h+d-2+24)%24];w+=kk*z.w;s+=kk*z.s});return{h,w,n:z0.n,i:w>=1&&g0>0?(Math.sqrt(s/w)/g0-1)*100*(w/(w+3)):null}});
+  const I=Z.filter(z=>z.i!=null),N=A.reduce((a,z)=>a+z.n,0);
+  return{Z,I,N,tw,ok:I.length>=5&&tw>=5}
+};
+const hourBest=g=>{const c=C.map[g.name.toLowerCase()];let H=c?hourFx(q=>C.map[q]===c):null;if(!H||!H.ok)H=hourFx();return H};
+const sellAdvice=g=>{
+  const cur=met(g).l;if(!(cur>0))return null;
+  const H=hourBest(g),b=H.ok?H.I.filter(o=>o.w>=2).reduce((a,o)=>!a||o.i>a.i?o:a,null):null,good=b&&b.i>=1;
+  let h=null;
+  if(good){const n=new Date(),t=new Date(n.getFullYear(),n.getMonth(),n.getDate(),b.h,0,0);if(t<=n)t.setDate(t.getDate()+1);h={h:b.h,i:b.i,w:b.w,day:t.getDate()===n.getDate()?'aujourd’hui':'demain'}}
+  return{price:Math.round(cur*(1+(good?b.i:0)/100)),h,ok:H.ok}
+};
+const sellBox=g=>{const a=sellAdvice(g);if(!a)return '';
+  const cf3=a.h?(a.h.w>=8?'bonne':a.h.w>=4?'moyenne':'faible'):'';
+  return `<div class="adv"><div class="at"><small>Prix conseillé</small><b><i class="coin"></i>${fmt(a.price)}</b><span class="as">moy. quad. × effet de l’heure de fin</span></div><div class="at"><small>Fin d’enchère</small><b>${a.h?clockSvg(a.h.h)+a.h.h+'h':'—'}</b><span class="as">${a.h?a.h.day+' · +'+a.h.i.toFixed(0)+' % vs la moyenne des heures · fiabilité '+cf3:(a.ok?'aucune heure nettement meilleure':'pas encore assez de fins relevées')}</span></div></div>`};
+const hrsHtml=()=>{
+  const H=hourFx(inCat),Z=H.Z,I=H.I,hd='<summary class="mu">Meilleures heures de fin d’enchère</summary>';
+  if(!H.ok)return `<details>${hd}<p class="mu">Pas encore assez de données${cf===null?'':' dans cette catégorie'} : il faut des enchères avec mise relevées peu avant leur fin, à plusieurs heures différentes.${H.N?' '+H.N+' relevé'+(H.N>1?'s':'')+' exploitable'+(H.N>1?'s':'')+' pour l’instant.':''}</p></details>`;
+  const W=320,Ht=152,x0=36,x1=312,zy=62,amp=44,bw=(x1-x0)/23,X=h=>x0+h*bw;
+  const mx0=Math.max(...I.map(o=>Math.abs(o.i)),3),m=mx0<=5?5:mx0<=10?10:mx0<=20?20:Math.ceil(mx0/10)*10,Y=v=>zy-v/m*amp;
+  const runs=[];let cr=[];Z.forEach(z=>{if(z.i==null){if(cr.length)runs.push(cr);cr=[]}else cr.push(z)});if(cr.length)runs.push(cr);
+  const ln=r=>r.map((z,j)=>(j?'L':'M')+X(z.h).toFixed(1)+' '+Y(z.i).toFixed(1)).join(''),ar=r=>ln(r)+`L${X(r.at(-1).h).toFixed(1)} ${zy}L${X(r[0].h).toFixed(1)} ${zy}Z`;
+  const mw=Math.max(...Z.map(z=>z.w),1),cov=Z.map(z=>{const hh=Math.max(z.w/mw*16,.8);return `<rect class="cv" x="${(X(z.h)-bw*.32).toFixed(1)}" y="${(136-hh).toFixed(1)}" width="${(bw*.64).toFixed(1)}" height="${hh.toFixed(1)}" rx="1.5"/>`}).join('');
+  const best=I.reduce((a,o)=>o.i>a.i?o:a),top=[...I].sort((a,b)=>b.i-a.i),lo=top.length>3?top.slice(Math.max(3,top.length-2)).reverse():[];
+  const lab=[0,6,12,18,23].map(t=>`<text x="${X(t).toFixed(1)}" y="150" text-anchor="${t===0?'start':t===23?'end':'middle'}">${t}h</text>`).join('');
+  const grid=[6,12,18].map(t=>`<line class="gl" x1="${X(t).toFixed(1)}" x2="${X(t).toFixed(1)}" y1="12" y2="132"/>`).join('');
+  const yl=[m,0,-m].map(v=>`<text x="${x0-5}" y="${(Y(v)+3).toFixed(1)}" text-anchor="end">${v>0?'+':''}${v} %</text>`).join('');
+  const bl=best.i>0?`<circle class="bk" cx="${X(best.h).toFixed(1)}" cy="${Y(best.i).toFixed(1)}" r="4"/><text class="bl" x="${X(best.h).toFixed(1)}" y="${(Y(best.i)-8).toFixed(1)}" text-anchor="middle">${best.h}h · +${best.i.toFixed(0)} %</text>`:'';
+  const chp=o=>`<span class="chg ${o.i>=0?'up':'dn'}${o.i<0?' ad':''}">${o.h}h · ${(o.i>=0?'+':'')+o.i.toFixed(0)} %</span>`,rel=H.tw>=30?'bonne':H.tw>=12?'moyenne':'faible';
+  return `<details>${hd}<div class="cc"><svg class="ch" viewBox="0 0 ${W} ${Ht}"><defs><clipPath id="cpu"><rect x="0" y="0" width="${W}" height="${zy}"/></clipPath><clipPath id="cpd"><rect x="0" y="${zy}" width="${W}" height="${Ht-zy}"/></clipPath></defs>${grid}<line class="bs0" x1="${x0}" x2="${x1}" y1="${zy}" y2="${zy}"/>${yl}<g clip-path="url(#cpu)">${runs.map(r=>`<path class="ap" d="${ar(r)}"/>`).join('')}</g><g clip-path="url(#cpd)">${runs.map(r=>`<path class="an" d="${ar(r)}"/>`).join('')}</g>${runs.map(r=>`<path class="hr" d="${ln(r)}"/>`).join('')}${I.map(z=>`<circle class="dp" cx="${X(z.h).toFixed(1)}" cy="${Y(z.i).toFixed(1)}" r="1.8"/>`).join('')}${bl}${cov}${lab}</svg></div><h3>Les meilleures heures</h3><div class="chs">${top.slice(0,3).map(chp).join('')}</div>${lo.length?`<h3>Les plus creuses</h3><div class="chs">${lo.map(chp).join('')}</div>`:''}<p class="mu note">Fiabilité ${rel} : ${H.N} enchère${H.N>1?'s':''} relevée${H.N>1?'s':''} moins de 8 h avant leur fin${cf===null?'':' dans cette catégorie'}. Barres grises : quantité de relevés à chaque heure.</p><small class="mu">Écart du prix des mises par rapport à la moyenne de toutes les heures. Chaque enchère compte d’autant plus qu’elle a été relevée près de sa fin, les heures voisines sont lissées et les heures peu documentées sont ramenées vers zéro.</small></details>`};
+let J=[];try{J=JSON.parse(localStorage.getItem('wm-jrn-v1')||'[]')}catch(e){J=[]}
+let CM=null;try{CM=JSON.parse(localStorage.getItem('wm-cmp'))}catch(e){CM=null}
+let cd=null,cmDef=[],vw='cards',tg2=0;
+const subTxt=()=>{const n=Object.keys(fgroups()).length,t=S.reduce((m,x)=>Math.max(m,new Date(x.d+'T'+x.t).getTime()||0),0);return n?`${n} carte${n>1?'s':''}${cf===null?'':' · '+(cf==='_'?'sans catégorie':cf)}`+(t?` · dernier relevé il y a ${fd(Math.max(0,(Date.now()-t)/1000))}`:''):(cf===null?'Aucune carte suivie':'Aucune carte dans cette catégorie')};
+
+const jBox=k=>{const L=J.filter(o=>o.k===k);return L.length?'<h3 class="mu">Mes ventes</h3>'+[...L].reverse().map(o=>`<div class="it"><span>${dfr(o.d)}<small>${o.b!=null?' acheté '+fmt(o.b)+' → ':' '}vendu ${fmt(o.p)}</small></span><b class="${o.b==null?'':o.p-o.b>=0?'up':'dn'}">${o.b==null?'—':(o.p-o.b>=0?'+':'')+fmt(Math.round(o.p-o.b))}</b></div>`).join(''):''};
+const kBox=k=>cd===k?`<div class="lg"><span class="dn">Supprimer cette carte et tous ses relevés ?</span><button class="lk dn" id="kyes">Oui, supprimer</button><button class="lk" id="kno">Annuler</button></div>`:`<div class="lg"><button class="lk" id="kdel">Supprimer cette carte</button></div>`;
+const rdrHtml=()=>{
+ const G=fgroups(),now=Date.now(),A=[];
+ Object.entries(G).forEach(([k,g])=>{
+  const sn=snaps(g);if(!sn.length)return;
+  const ap=sn.map(q=>({x:ts(q),y:(stat(q)||{}).av})).filter(z=>z.y!=null),ref=ap.length?trms(ap):null,s=sn.at(-1),t=ts(s);
+  s.l.forEach(x=>{if(!inc&&x[1]==='d')return;const e=x[3]?t+x[3]*1000:0;if(e>now&&x[2])A.push({n:g.name,s:x[2],p:x[0],k:x[1],e,d:ref?(1-x[0]/ref)*100:null})});
+ });
+ A.sort((a,b)=>(b.d??-1e9)-(a.d??-1e9));
+ const top=A.slice(0,8);
+  return `<details open><summary class="mu">Radar : annonces en cours</summary>${top.length?top.map(o=>`<div class="it"><span><b class="nm2">${esc(o.n)}</b><small>${esc(o.s)} · ${o.k==='d'?'départ':'★ mise'} · fin dans <span class="cd" data-e="${o.e}">${fd((o.e-now)/1000)}</span></small></span><span class="pvx"><b><i class="coin"></i>${fmt(o.p)}</b>${o.d==null?'':`<span class="chg ${o.d>=0?'up':'dn'}${o.d>=0?' ad':''}">${(o.d>=0?'−':'+')+Math.abs(o.d).toFixed(0)} %</span>`}</span></div>`).join('')+'<small class="mu">Écart : prix vs moyenne quadratique des relevés de la carte, pondérée par le temps (− = moins cher).</small>':'<p class="mu">Aucune annonce encore en cours d’après tes derniers relevés. Fais un relevé pour la mettre à jour.</p>'}</details>`};
+const cmpHtml=()=>{
+ const G=fgroups(),ks=Object.keys(G).filter(k=>snaps(G[k]).map(stat).filter(Boolean).length>1);
+ const hd='<summary class="mu">Comparer des cartes (base 100)</summary>';
+ if(!ks.length)return `<details>${hd}<p class="mu">Il faut au moins une carte avec 2 relevés du marché.</p></details>`;
+ cmDef=ks.slice(0,3);
+ const sl=(CM||cmDef).filter(k=>ks.includes(k)).slice(0,6),chips=ks.map(k=>`<label class="chip"><input type="checkbox" data-cm="${esc(k)}"${sl.includes(k)?' checked':''}> ${esc(G[k].name)}</label>`).join('');
+ let svg='';
+ if(sl.length){
+  const Y2=sl.map((k,i)=>{const sn=snaps(G[k]).map(s=>({x:new Date(s.d+'T'+s.t).getTime(),a:stat(s)})).filter(o=>o.a),b=sn[0].a.av;return{k,i,pts:sn.map(o=>({x:o.x,y:o.a.av/b*100}))}});
+  const xs=Y2.flatMap(o=>o.pts.map(q=>q.x)),ys=Y2.flatMap(o=>o.pts.map(q=>q.y)),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys,100),y1=Math.max(...ys,100),W=320,H=150,pl=34,pr=8,pt=10,pb=18;
+  const X=x=>pl+(x1>x0?(x-x0)/(x1-x0):.5)*(W-pl-pr),Y=y=>H-pb-(y1>y0?(y-y0)/(y1-y0):.5)*(H-pt-pb);
+   const yt=[y0,(y0+y1)/2,y1];
+   svg=`<div class="cc"><svg class="ch" viewBox="0 0 ${W} ${H}">${yt.map(t=>`<line class="gl" x1="${pl}" x2="${W-pr}" y1="${Y(t).toFixed(1)}" y2="${Y(t).toFixed(1)}"/><text x="${pl-6}" y="${(Y(t)+3).toFixed(1)}" text-anchor="end">${Math.round(t)}</text>`).join('')}<line class="bs0" x1="${pl}" x2="${W-pr}" y1="${Y(100).toFixed(1)}" y2="${Y(100).toFixed(1)}"/>${Y2.map(o=>`<path class="ln" d="${o.pts.map((q,j)=>(j?'L':'M')+X(q.x).toFixed(1)+' '+Y(q.y).toFixed(1)).join('')}" style="stroke:${PAL[o.i]}"/>${o.pts.map((q,j)=>`<circle cx="${X(q.x).toFixed(1)}" cy="${Y(q.y).toFixed(1)}" r="${j===o.pts.length-1?3.4:2}" style="fill:${PAL[o.i]}"/>`).join('')}`).join('')}</svg></div><div class="lg">${Y2.map(o=>`<span class="lgi" style="color:${PAL[o.i]}">● <span>${esc(G[o.k].name)}</span> <b>${Math.round(o.pts.at(-1).y)}</b></span>`).join('')}</div>`;
+ }
+ return `<details${sl.length?' open':''}>${hd}<div class="lg">${chips}</div>${svg}<small class="mu">Chaque courbe part de 100 à son premier relevé : 120 = +20 %.</small></details>`};
+const catTabs=()=>C.cats.length?['*',...C.cats,'_'].map(c=>`<button class="tab${(cf===null&&c==='*')||cf===c?' on':''}" data-c="${esc(c)}">${c==='*'?'Toutes':c==='_'?'Sans catégorie':esc(c)}</button>`).join('')+(cf&&cf!=='_'?`<button class="tab" id="cdel">Supprimer « ${esc(cf)} »</button>`:''):'';
+const catBox=k=>`<div class="lg"><select id="csel"><option value="">Sans catégorie</option>${C.cats.map(c=>`<option${C.map[k]===c?' selected':''}>${esc(c)}</option>`).join('')}</select><input id="cin" placeholder="Nouvelle catégorie"><button class="lk pri" id="cnew">Créer</button></div>`;
+const ventes=g=>{const L=V.filter(v=>v.c.toLowerCase()===g.name.toLowerCase()).sort((a,b)=>b.t-a.t);return '<h3 class="mu">Historique des ventes</h3>'+(L.length?L.map(v=>`<div class="it"><span>${new Date(v.t).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}<small> ${esc(v.s)}</small></span><b>${fmt(v.p)}</b></div>`).join('')+'<small class="mu">Prix : dernière mise vue avant la fin.</small>':'<p class="mu">Aucune vente détectée pour l’instant. Elle apparaît quand une enchère avec mise disparait du marché après un relevé.</p>')};
+const sig=g=>{
+ const pos=P[g.name.toLowerCase()],cur=met(g).l,sn=snaps(g),ap=sn.map(q=>({x:ts(q),y:(stat(q)||{}).av})).filter(z=>z.y!=null);
+ let p=null,o=null,sc=null;
+ const ma=ap.length>=3?trms(ap):0;
+ if(ma>0){const mn=trms(sn.map(q=>({x:ts(q),y:q.l.length})));p=(ap.at(-1).y/ma-1)*100;o=mn>0?(sn.at(-1).l.length/mn-1)*100:0;sc=p-0.3*o}
+ const gain=pos&&pos.b&&cur?(cur/pos.b-1)*100:null;let k;
+ if(pos)k=(gain!=null&&(gain>=20||(gain>=5&&sc!=null&&sc>=10)))||(gain==null&&sc!=null&&sc>=10)?'sell':'hold';
+ else{if(sc==null)return null;k=sc<=-10?'buy':'wait'}
+ return{p,o,sc,gain,pos,cur,k}};
+const sigO={buy:['Acheter','up'],sell:['Vendre','dn'],wait:['Attendre','mu'],hold:['Garder','mu']};
+const sgb=g=>{const s=sig(g);return s?`${s.pos?`<span class="pill">${s.pos.b==null?'possédée':'en stock'}</span>`:''}<span class="pill ${sigO[s.k][1]}">${sigO[s.k][0]}</span>`:''};
+const sigBox=g=>{const s=sig(g);
+  if(!s)return '<div class="box vd"><div class="vk">Conseil</div><p class="mu vn">Pas assez de relevés pour conseiller : il en faut 3 au minimum.</p></div>';
+  const f=n=>(n>=0?'+':'')+n.toFixed(0)+' %',L=[],hb=s.pos&&s.pos.b!=null;
+  if(hb)L.push(`Acheté ${fmt(s.pos.b)} · prix actuel ${s.cur?fmt(Math.round(s.cur)):'?'}${s.gain==null?'':' · '+f(s.gain)+' ('+(s.cur-s.pos.b>=0?'+':'')+fmt(Math.round(s.cur-s.pos.b))+')'}`);
+  else if(s.pos)L.push('Possédée · prix d’achat non renseigné');
+  if(s.sc!=null)L.push(`Marché : prix ${f(s.p)} vs moy. quad. (30 j) · offre ${f(s.o)} · score ${s.sc.toFixed(0)}`);
+  const rule=s.pos?(hb?'Vendre si bénéfice ≥ +20 %, ou ≥ +5 % avec un marché haut (score ≥ +10). Sinon garder.':'Vendre si le marché est haut (score ≥ +10). Indique ton prix d’achat pour affiner.'):'Score = écart de prix − 0,3 × écart d’offre. ≤ −10 : acheter, sinon attendre.';
+  return `<div class="box vd"><div class="vh"><span class="vk">Conseil</span><span class="stamp ${sigO[s.k][1]}">${sigO[s.k][0]}</span></div>${L.length?`<ul class="vl">${L.map(t=>`<li>${t}</li>`).join('')}</ul>`:''}${s.k==='sell'?sellBox(g):''}<p class="rule">${rule} Indicatif.</p></div>`};
+const cntChart=g=>{
+  const A=snaps(g);if(!A.length)return '';
+  const Q=A.map(s=>({n:s.l.length,x:ts(s)})),W=320,H=118,pl=42,pr=10,pt=12,pb=22,xs=Q.map(o=>o.x),x0=Math.min(...xs),x1=Math.max(...xs);
+  let y0=Math.min(...Q.map(o=>o.n)),y1=Math.max(...Q.map(o=>o.n));if(y1===y0){y0=Math.max(0,y0-1);y1+=1}
+  const X=x=>pl+(x1>x0?(x-x0)/(x1-x0):.5)*(W-pl-pr),Y=y=>H-pb-(y1>y0?(y-y0)/(y1-y0):.5)*(H-pt-pb),d=Q.map((o,i)=>(i?'L':'M')+X(o.x).toFixed(1)+' '+Y(o.n).toFixed(1)).join(''),yt=[y0,(y0+y1)/2,y1];
+  return `<h3>Nombre d’annonces en vente</h3><div class="cc"><svg class="ch" viewBox="0 0 ${W} ${H}">${yt.map(t=>`<line class="gl" x1="${pl}" x2="${W-pr}" y1="${Y(t).toFixed(1)}" y2="${Y(t).toFixed(1)}"/><text x="${pl-6}" y="${(Y(t)+3).toFixed(1)}" text-anchor="end">${Math.round(t)}</text>`).join('')}<path fill="url(#gNb)" stroke="none" d="${d}L${X(x1).toFixed(1)} ${H-pb}L${X(x0).toFixed(1)} ${H-pb}Z"/><path class="ln nb" d="${d}"/>${Q.map((o,i)=>`<circle class="nb" cx="${X(o.x).toFixed(1)}" cy="${Y(o.n).toFixed(1)}" r="${i===Q.length-1?3.6:2.4}"/>`).join('')}<text x="${pl}" y="${H-4}">${dtF(x0)}</text><text x="${W-pr}" y="${H-4}" text-anchor="end">${Q.length>1?dtF(x1):''}</text></svg></div>`};
+let E={seen:[],last:[]};try{E=JSON.parse(localStorage.getItem('wm-end-v1'))||E;E.seen=E.seen||[];E.last=E.last||[];E.al=E.al||[]}catch(e){}
+const fd=n=>n>=86400?Math.floor(n/86400)+'j '+Math.floor(n%86400/3600)+'h':n>=3600?Math.floor(n/3600)+'h '+('0'+Math.floor(n%3600/60)).slice(-2)+'m':n>=60?Math.floor(n/60)+'m '+('0'+Math.round(n%60)).slice(-2)+'s':Math.round(n)+'s';
+const finHtml=()=>{let h='';
+  const ic=o=>inCat(String(o.c||'').toLowerCase()),al=(E.al||[]).filter(ic).filter(o=>!o.e||o.e>Date.now()),ls=E.last.filter(ic);
+  if(al.length)h+=`<div class="box"><div class="vk">Alertes du relevé</div>${al.map(o=>`<div class="it"><span><b class="nm2"><i class="tg ${o.t}">${o.t==='vente'?'Vente':o.t==='cible'?'Cible':'Affaire'}</i>${esc(o.c)}</b><small>${o.s?esc(o.s)+' · ':''}${o.tx}${o.e?' · reste '+fd(Math.max(0,(o.e-Date.now())/1000)):o.r?' · reste '+fd(o.r):''}</small></span><b class="pv"><i class="coin"></i>${fmt(Math.round(o.p))}</b></div>`).join('')}<button class="lk" id="fx">OK</button></div>`;
+  if(ls.length)h+=`<div class="box"><div class="vk">Enchères avec mise qui ne sont plus au marché</div>${ls.map(o=>`<div class="it"><span><b class="nm2"><i class="tg ${o.st==='fin'?'fin':'abs'}">${o.st==='fin'?'Terminée':'Absente'}</i>${esc(o.c)}</b><small>${esc(o.s)}${o.st==='fin'||!o.rem?'':' · il restait '+fd(o.rem)}</small></span><b class="pv"><i class="coin"></i>${fmt(o.p)}</b></div>`).join('')}<small class="mu">Prix : dernière mise vue.</small> <button class="lk" id="fx">OK</button></div>`;
+  return h};
+const dtl=g=>snaps(g).slice().reverse().map((s,i)=>`<details${i?'':' open'}><summary class="mu">Annonces du ${dfr(s.d)} ${s.t}</summary>${[...s.l].sort((a,b)=>(a[3]||1e9)-(b[3]||1e9)).map(x=>`<div class="it"><span>${x[2]?esc(x[2]):'—'}<small>${x[1]==='d'?' · départ':' · ★ mise'}${x[3]?' · reste '+fd(x[3]):''}</small></span><b>${fmt(x[0])}</b></div>`).join('')}<button class="lk" data-sdel="${s.d}|${s.t}">Supprimer ce relevé</button></details>`).join('');
+function findEnded(nw){
+ if(!nw.length)return;
+ const tn=new Date(nw[0].d+'T'+nw[0].t).getTime(),cur=new Set(nw.flatMap(s=>s.l.map(x=>s.c.toLowerCase()+'|'+x[2]))),inN=new Set(nw.map(s=>s.c.toLowerCase())),last={},res=[];
+ S.forEach(s=>{const t=new Date(s.d+'T'+s.t).getTime(),k=s.c.toLowerCase();if(t<tn&&(!last[k]||t>last[k].t))last[k]={s,t}});
+ Object.entries(last).forEach(([k,{s,t}])=>s.l.forEach(x=>{
+  if(x[1]!=='m'||!x[2])return;
+  const id=k+'|'+x[2],sid=s.d+s.t+'|'+id,rem=x[3]||0,sure=rem&&(tn-t)/1000>=rem-120;
+  if(cur.has(id)||E.seen.includes(sid)||(!sure&&!inN.has(k)))return;
+  res.push({c:s.c,s:x[2],p:x[0],rem,st:sure?'fin':'cours'});
+  if(sure){E.seen.push(sid);V.push({c:s.c,s:x[2],p:x[0],t:t+rem*1000})}
+ }));
+ E.seen=E.seen.slice(-500);const nk=new Set(res.map(o=>o.c+'|'+o.s)),nt=Date.now();E.last=res.map(o=>({...o,at:nt})).concat((E.last||[]).filter(o=>!nk.has(o.c+'|'+o.s)&&nt-(o.at||nt)<1728e5)).slice(0,20);
+}
+const SORTS=[['date','Récent',-1],['nom','Nom',1],['prix','Prix',-1],['var','Variation',-1],['nb','Relevés',-1],['sig','Signal',-1]];
+try{const q=(localStorage.getItem('wm-sort')||'').split('|');if(SORTS.some(s=>s[0]===q[0])){sk=q[0];sd=+q[1]===1?1:-1}}catch(e){}
+const met=g=>{const pt=snaps(g).map(q=>({x:ts(q),y:(stat(q)||{}).av})).filter(z=>z.y!=null),leg=!pt.length,pp=leg?g.use.map(r=>({x:new Date(r.date+'T'+(r.t||'12:00')).getTime(),y:r.price})):pt,v=pp.map(z=>z.y),l=v.at(-1),m=v.length>1?trms(pp):0;return{v,l,d:m>0?(l/m-1)*100:null}};
+const val=(k,g)=>{if(k==='nom')return g.name.toLowerCase();if(k==='date'){const r=g.rows.at(-1);return r.date+(r.t||'')}const m=met(g);if(k==='sig'){const s=sig(g);return s?s.sc:null}return k==='prix'?m.l:k==='var'?m.d:m.v.length};
+const tabs=()=>SORTS.map(([k,n])=>`<button class="tab${sk===k?' on':''}" data-s="${k}">${n}${sk===k?(sd<0?' ↓':' ↑'):''}</button>`).join('');
+const snaps=g=>S.filter(s=>s.c.toLowerCase()===g.name.toLowerCase()).sort((a,b)=>(a.d+a.t).localeCompare(b.d+b.t));
+const stat=s=>{const L=inc?s.l:s.l.filter(x=>x[1]!=='d'),l=L.map(x=>x[0]);if(!l.length)return null;const mn=Math.min(...l),mx=Math.max(...l),bid=p=>L.some(x=>x[0]===p&&x[1]!=='d');return{mn,mx,av:Math.round(rms(l)),n:l.length,s:{mn:bid(mn),mx:bid(mx),av:L.every(x=>x[1]!=='d')}}};
+const chk=()=>`<label><input type="checkbox" id="inc2" ${inc?'checked':''}> avec les mises de départ</label>`;
+function snapChart(g){
+  const A=snaps(g);if(!A.length)return '';
+  const Q=A.map(s=>({k:stat(s),x:ts(s)})).filter(o=>o.k);
+  if(!Q.length)return `<p class="mu">Aucune annonce avec mise pour l’instant.</p><div class="lg">${chk()}</div>`;
+  const W=320,H=164,pl=42,pr=10,pt=12,pb=24,xs=Q.map(o=>o.x),x0=Math.min(...xs),x1=Math.max(...xs),ys=Q.flatMap(o=>[o.k.mn,o.k.mx]);
+  const nzr=nz(Math.min(...ys),Math.max(...ys)),y0=nzr.lo,y1=nzr.hi;
+  const X=x=>pl+(x1>x0?(x-x0)/(x1-x0):.5)*(W-pl-pr),Y=y=>H-pb-(y1>y0?(y-y0)/(y1-y0):.5)*(H-pt-pb);
+  const pa=f=>Q.map((o,i)=>(i?'L':'M')+X(o.x).toFixed(1)+' '+Y(o.k[f]).toFixed(1)).join('');
+  const star=(x,y,f)=>{let p='';for(let i=0;i<10;i++){const a=Math.PI/5*i-Math.PI/2,r=i%2?2.8:6.4;p+=(x+r*Math.cos(a)).toFixed(1)+','+(y+r*Math.sin(a)).toFixed(1)+' '}return `<polygon class="${f}" points="${p}"/>`};
+  const mk=f=>Q.map(o=>o.k.s[f]?star(X(o.x),Y(o.k[f]),f):`<circle class="${f}" cx="${X(o.x).toFixed(1)}" cy="${Y(o.k[f]).toFixed(1)}" r="2.6"/>`).join('');
+  const band=pa('mx')+Q.slice().reverse().map(o=>'L'+X(o.x).toFixed(1)+' '+Y(o.k.mn).toFixed(1)).join('')+'Z',area=pa('av')+`L${X(x1).toFixed(1)} ${H-pb}L${X(x0).toFixed(1)} ${H-pb}Z`;
+  const yt=nzr.t,lq=Q.at(-1),grid=yt.map(t=>`<line class="gl" x1="${pl}" x2="${W-pr}" y1="${Y(t).toFixed(1)}" y2="${Y(t).toFixed(1)}"/><text x="${pl-6}" y="${(Y(t)+3).toFixed(1)}" text-anchor="end">${fmt(Math.round(t))}</text>`).join('');
+  SC={Q,X,W};
+  return `<div class="cap" id="stdt">Dernier relevé · ${dtF(lq.x)}</div><div class="st" id="sts">${stHtml(lq.k)}</div><div class="cc"><svg class="ch" id="snapsvg" viewBox="0 0 ${W} ${H}">${grid}<path class="band" d="${band}"/><path fill="url(#gAc)" stroke="none" d="${area}"/><path class="ln mx" d="${pa('mx')}"/><path class="ln mn" d="${pa('mn')}"/><path class="ln av" d="${pa('av')}"/>${mk('mx')}${mk('mn')}${mk('av')}<circle class="av hl" cx="${X(lq.x).toFixed(1)}" cy="${Y(lq.k.av).toFixed(1)}" r="8"/><line class="xh" id="xh" x1="0" x2="0" y1="${pt}" y2="${H-pb}" style="display:none"/><text x="${pl}" y="${H-5}">${dtF(x0)}</text><text x="${W-pr}" y="${H-5}" text-anchor="end">${Q.length>1?dtF(x1):''}</text></svg></div><div class="lg"><span class="mn">● Min</span><span class="av">● Moy. quad.</span><span class="mx">● Max</span><span class="mu">★ = mise actuelle</span>${chk()}</div>`;
+}
+$('#d').value=new Date().toLocaleDateString('sv-SE');
+function groups(){const m={};D.forEach(e=>{const k=e.card.toLowerCase();(m[k]=m[k]||{name:e.card,rows:[]}).rows.push(e)});Object.values(m).forEach(g=>{g.rows.sort((a,b)=>(a.date+(a.t||'')).localeCompare(b.date+(b.t||''))||a.id-b.id);const b=g.rows.filter(r=>r.k!=='d');g.use=b.length?b:g.rows});return m}
+function line(v,w,h,p){if(v.length<2)return '';const mn=Math.min(...v),mx=Math.max(...v),r=mx-mn||1;return v.map((y,i)=>(i?'L':'M')+(p+i*(w-2*p)/(v.length-1)).toFixed(1)+' '+(h-p-(y-mn)/r*(h-2*p)).toFixed(1)).join('')}
+function render(){
+ const G=groups(),list=Object.entries(G).sort((a,b)=>{const x=val(sk,a[1]),y=val(sk,b[1]);if(x==null||y==null)return x==null&&y==null?0:x==null?1:-1;return(typeof x==='string'?x.localeCompare(y,'fr'):x-y)*sd});
+ $('#dl').innerHTML=list.map(([k,g])=>`<option value="${esc(g.name)}">`).join('');
+ if(sel&&!G[sel])sel=null;if(!sel)cd=null;
+ if(cf&&cf!=='_'&&!C.cats.includes(cf))cf=null;
+ try{cf===null?localStorage.removeItem('wm-cf'):localStorage.setItem('wm-cf',cf)}catch(e){}
+ if(sel)vw='cards';
+ ['cards','mkt','imp'].forEach(v=>{$('#v-'+v).style.display=vw===v?'':'none'});
+  $('#nav').innerHTML=[['cards',IC.cards,'Cartes'],['mkt',IC.mkt,'Marché'],['imp',IC.imp,'Importer']].map(([v,i,t])=>`<button data-v="${v}" class="${vw===v?'on':''}"${vw===v?' aria-current="page"':''}>${i}<span>${t}</span></button>`).join('');
+ $('#sub').textContent=subTxt();$('#mk0').textContent=list.length?'':'Importe d’abord un relevé pour voir le marché.';
+ $('#fin').innerHTML=finHtml();$('#pf').innerHTML=sel?'':pfHtml();$('#rep').innerHTML=sel||!list.length?'':repHtml();$('#hrs').innerHTML=sel||!list.length?'':hrsHtml();$('#rdr').innerHTML=sel||!list.length?'':rdrHtml();$('#cmp').innerHTML=sel||!list.length?'':cmpHtml();$('#srt').innerHTML=sel||!list.length?'':tabs();$('#cts').innerHTML=sel||!list.length||vw==='imp'?'':catTabs();
+  if(vw==='imp'){let n=0;try{Object.keys(localStorage).forEach(k=>{if(k.startsWith('wm-'))n+=k.length+(localStorage.getItem(k)||'').length})}catch(e){}
+  const pc=Math.min(100,Math.round(n/5e4));
+  $('#sto').innerHTML=`<p class="mu">Données enregistrées dans ce navigateur : ${fmt(Math.round(n/1024))} Ko (environ ${pc} % de la place disponible). ${S.length} relevés, ${D.length} lignes de prix.</p><div class="meter"><i style="width:${pc}%"></i></div><button class="lk" id="prune">Alléger : ne garder que les 60 derniers jours</button>`}
+ $('#opt').innerHTML=vw==='imp'?'':`<label><input type="checkbox" id="inc" ${inc?'checked':''}> Inclure les mises de départ</label><span class="mu">${inc?'Les annonces sans offre comptent dans les moyennes, signaux et alertes.':'Seules les annonces avec une vraie mise comptent dans les moyennes, signaux et alertes.'}</span>`;const shown=list.filter(([k])=>cf===null||(cf==='_'?!C.map[k]:C.map[k]===cf));if(sel){detail(G[sel]);return}
+ $('#detail').hidden=true;$('#list').hidden=false;
+  $('#list').innerHTML=shown.length?shown.map(([k,g])=>{
+   const{v,l,d}=met(g),tr=d==null?'':d>=0?'up':'dn';
+   return `<button class="row" data-k="${esc(k)}">${avatar(g.name)}<span class="rm"><b class="nm">${esc(g.name)}</b><small>${v.length} relevé${v.length>1?'s':''}</small><span class="sgs">${sgb(g)}</span></span>${spark(v,tr)}<span class="pr"><span class="px"><i class="coin"></i>${fmt(l)}</span>${d==null?'<span class="chg nl">—</span>':`<span class="chg ${tr}${d<0?' ad':''}">${(d>=0?'+':'')+d.toFixed(0)} %</span>`}</span></button>`}).join('')+'<p class="foot">Variation : prix actuel face à la moyenne quadratique des 30 derniers jours.</p>'
+   :(list.length?'<p class="mu">Aucune carte dans cette catégorie.</p>':EMPTY);
+}
+function detail(g){
+ $('#list').hidden=true;const el=$('#detail');el.hidden=false;
+  const v=g.use.map(r=>r.price),avg=Math.round(rms(v)),m=met(g),sn=snaps(g).length,d=m.d,pic=IM[sel]&&IMOK.test(IM[sel])?IM[sel]:'';
+  el.innerHTML=`<button class="lk back" id="back">${IC.back}Retour</button>
+  <div class="top"><div class="hero${pic?' hasp':''}">${pic?`<img class="pic" alt="" src="${pic}">`:''}<div class="vk">${sn?sn+' relevé'+(sn>1?'s':'')+' du marché':v.length+' relevé'+(v.length>1?'s':'')+' manuel'+(v.length>1?'s':'')}</div><h2>${esc(g.name)}</h2><div class="hp"><b><i class="coin"></i>${fmt(m.l)}</b>${d==null?'':`<span class="chg ${d>=0?'up':'dn'}${d<0?' ad':''}">${(d>=0?'+':'')+d.toFixed(0)} % vs moy. quad.</span>`}</div>${imgRow(g)}</div>${sigBox(g)}</div>
+  <details open><summary>Catégorie, position et objectifs</summary>${catBox(sel)}${posBox(sel)}${tgBox(sel)}</details>
+  ${sn?'':`<div class="st"><div><small>Dernier</small><b>${fmt(v.at(-1))}</b></div><div><small>Min</small><b class="mn">${fmt(Math.min(...v))}</b></div><div><small>Max</small><b class="mx">${fmt(Math.max(...v))}</b></div><div><small>Moy. quad.</small><b class="av">${fmt(avg)}</b></div></div>`}
+  <div class="dgrid"><div>${snapChart(g)}${cntChart(g)}${dtl(g)}${sn?'':v.length>1?`<div class="cc"><svg class="ch" viewBox="0 0 320 130"><path class="ln av" d="${line(v,320,130,12)}"/></svg></div>`:'<p class="mu">Ajoute un deuxième relevé pour voir la courbe.</p>'}</div><div>${ventes(g)}${jBox(sel)}</div></div>${kBox(sel)}`;
+  bindSC();
+}
+$('#add').onclick=()=>{
+ const c=$('#c').value.trim(),p=parseFloat($('#p').value.replace(',','.')),dt=$('#d').value;
+ if(!c||!(p>=0)||!dt){(c?$('#p'):$('#c')).focus();return}
+ D.push({id:Date.now(),card:c,price:p,date:dt});save();$('#p').value='';render();msg('Relevé ajouté.');
+};
+document.addEventListener('click',e=>{
+ const r=e.target.closest('.row'),x=e.target.closest('[data-del]');
+ if(r){sel=r.dataset.k;render();scrollTo(0,0)}
+ else if(e.target.closest('#back')){sel=null;render()}
+ else if(x){D=D.filter(o=>String(o.id)!==x.dataset.del);save();render()}
+});
+$('#ex').onclick=()=>{$('#io').value=JSON.stringify({d:D,s:S,v:V,c:C,p:P,g:TG,j:J,m:IM});$('#io').select()};
+$('#im').onclick=()=>{try{let a=JSON.parse($('#io').value);if(a&&a.d){S=Array.isArray(a.s)?a.s:[];V=Array.isArray(a.v)?a.v:[];C=a.c&&a.c.cats?a.c:{cats:[],map:{}};P=a.p&&typeof a.p==='object'?a.p:{};TG=a.g&&typeof a.g==='object'?a.g:{};J=Array.isArray(a.j)?a.j:[];IM=a.m&&typeof a.m==='object'&&!Array.isArray(a.m)?a.m:{};a=a.d}if(!Array.isArray(a)||a.some(o=>!o.card||typeof o.price!=='number'||!o.date))throw 0;D=a.map((o,i)=>({id:o.id||Date.now()+i,card:String(o.card),price:o.price,date:o.date,t:o.t,u:o.u,s:o.s,k:o.k,r:o.r}));save();sel=null;render()}catch(e){$('#io').value='Format invalide.'}};
+function cap(U,X){
+ var L=(X||document.body.innerText).split('\n').map(function(s){return s.trim();}).filter(Boolean);
+ var N=function(s){return parseInt(String(s).replace(/\D/g,''),10);};
+ var T=function(r){for(var i=0;i<L.length;i++){if(r.test(L[i]))return i;}return -1;};
+ var P=function(n){return ('0'+n).slice(-2);};
+ var M=['jan','fev','mar','avr','mai','jui','jui','aou','sep','oct','nov','dec'];
+ var mo=function(s){s=s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();var k=M.indexOf(s.slice(0,3));if(k===5&&s.charAt(3)!=='n')k=6;return k;};
+ var now=new Date(),out=[],h=T(/^HISTORIQUE/i),D0=now.getFullYear()+'-'+P(now.getMonth()+1)+'-'+P(now.getDate()),T0=P(now.getHours())+':'+P(now.getMinutes());
+ var B=[];
+ for(var j=0;j<L.length;j++){if(/^(L|UR|SR|R|PC|C)$/.test(L[j]))B.push(j);}
+ for(var q=0;q<B.length;q++){
+  var bl=L.slice(B[q]+1,q+1<B.length?B[q+1]:L.length),sv=-1,lb=-1;
+  for(var z=0;z<bl.length;z++){if(sv<0&&/^Vendu par/i.test(bl[z]))sv=z;if(lb<0&&/^MISE (DE D.PART|ACTUELLE)/i.test(bl[z]))lb=z;}
+  if(sv<0||lb<0)continue;
+  var pr=N(bl[lb].replace(/^MISE (DE D.PART|ACTUELLE)/i,'')),zz=lb;
+  while(!(pr>0)&&++zz<=lb+3&&zz<bl.length){if(/^\D{0,3}[\d\s\u00a0\u202f]+$/.test(bl[zz]))pr=N(bl[zz]);}
+  var se=bl[sv].replace(/^Vendu par\s*/i,'')||bl[sv+1];
+  var rt=0,du=-1;for(var y=0;y<bl.length;y++){if(/^DUR/i.test(bl[y])){du=y;break;}}
+  for(var y2=du;du>=0&&y2<=du+3&&y2<bl.length&&!rt;y2++){var mm,re=/(\d+)\s*(j|h|m|s)\b/gi,tt=0;while((mm=re.exec(bl[y2])))tt+=({j:86400,h:3600,m:60,s:1})[mm[2].toLowerCase()]*+mm[1];rt=tt;}
+  var ow=0;for(var y3=0;y3<bl.length;y3++){if(/^Poss.d.e?$/i.test(bl[y3]))ow=1;}
+  if(pr>0&&se)out.push({c:bl[0],p:pr,d:D0,t:T0,s:se,k:/D.PART/i.test(bl[lb])?'d':'m',r:rt,w:ow});
+ }
+ var a=T(/^Mis en vente/i);
+ var name=a>0?L[a-1]:out.length?'':prompt('Nom de la carte ?');
+ if(!name&&!out.length)return;
+ var sl=a>=0?(L[a].replace(/^Mis en vente par\s*/i,'')||L[a+1]||''):'';
+ for(var i=h+1;h>=0&&i<L.length;i++){
+  var m=L[i].match(/(\d{1,2})\s+(\S+?)\.?,?\s+(\d{1,2}):(\d{2})\s*(.*)$/);
+  if(!m)continue;
+  var k=mo(m[2]);
+  if(k<0)continue;
+  var p=N(m[5]||L[i+1]);
+  if(!(p>0))continue;
+  var d=new Date(now.getFullYear(),k,+m[1]);
+  if(d-now>864e5)d=new Date(now.getFullYear()-1,k,+m[1]);
+  var u=L[i].slice(0,m.index).trim()||L[i-1];
+  out.push({c:name,p:p,d:d.getFullYear()+'-'+P(d.getMonth()+1)+'-'+P(d.getDate()),t:P(m[3])+':'+m[4],u:u,s:sl,k:'m'});
+ }
+ var c=T(/^MISE (ACTUELLE|DE D.PART)/i),cur=c>=0?N(L[c].replace(/^MISE (ACTUELLE|DE D.PART)/i,'')||L[c+1]):NaN;
+ if(!out.length&&cur>0)out.push({c:name,p:cur,d:D0,t:T0,s:sl,k:/D.PART/i.test(L[c])?'d':'m',f:1});
+ if(!out.length){if(!U)return '';alert('Aucune mise trouvée sur cette page.');return;}
+ out=out.slice(0,40);
+ var b=btoa(unescape(encodeURIComponent(JSON.stringify(out)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+ if(!U)return b;var w=U+'#i'+b;
+ try{navigator.clipboard.writeText(w);}catch(e){}
+ if(!window.open(w,'_blank'))location.href=w;
+}
+const msg=t=>{const m=$('#msg');m.textContent=t;tg2^=1;m.className='toast '+(tg2?'a':'b')};
+function ingest(b){try{
+ const a=JSON.parse(decodeURIComponent(escape(atob(b.replace(/-/g,'+').replace(/_/g,'/'))))),kf=e=>(e.s?[e.card.toLowerCase(),e.s,e.k||'',e.date,e.price]:[e.card.toLowerCase(),e.date,e.t||'',e.price]).join('|'),seen=new Set(D.map(kf));let n=0,ni=0;a.forEach(o=>{if(o&&o.g&&o.c&&IMOK.test(o.g)){IM[String(o.c).toLowerCase()]=o.g;ni++}});
+ a.forEach((o,i)=>{const e={id:Date.now()+i,card:String(o.c||''),price:+o.p,date:o.d,t:o.t,u:o.u,s:o.s,k:o.k,r:o.r};if(e.card&&e.price>=0&&e.date&&!seen.has(kf(e))){seen.add(kf(e));D.push(e);n++}});
+ const sm=new Map();a.forEach(o=>{if(o.s&&!o.u&&!o.f){const k=o.c+'|'+o.d+'|'+o.t;if(!sm.has(k))sm.set(k,{c:o.c,d:o.d,t:o.t,l:[]});sm.get(k).l.push([+o.p,o.k||'m',o.s,o.r||0])}});const nw=[];sm.forEach((v,k)=>{if(!S.some(x=>x.c+'|'+x.d+'|'+x.t===k))nw.push(v)});findEnded(nw);nw.forEach(v=>S.push(v));findAlerts(nw);a.forEach(o=>{if(o.w){const k=String(o.c).toLowerCase();if(!P[k])P[k]={b:null,d:o.d,auto:1}}});const cs=[...new Set(a.map(o=>o.c))];save();vw='cards';sel=cs.length===1?cs[0].toLowerCase():null;render();scrollTo(0,0);msg(n===0&&ni?(ni>1?ni+' images enregistrées.':'Image enregistrée pour « '+cs[0]+' ».'):`${n} nouveau${n>1?'x':''} relevé${n>1?'s':''} ${cs.length===1?'pour « '+cs[0]+' »':'sur '+cs.length+' cartes'}.`);
+}catch(e){msg('Capture illisible.')}}
+const fh=()=>{const m=location.hash.match(/^#i([\w-]+)$/);if(m)ingest(m[1])};
+document.addEventListener('click',e=>{if(e.target.id==='fx'){E.last=[];E.al=[];save();render();return}const t=e.target.closest('[data-s]');if(!t)return;const k=t.dataset.s;if(sk===k)sd=-sd;else{sk=k;sd=SORTS.find(s=>s[0]===k)[2]}try{localStorage.setItem('wm-sort',sk+'|'+sd)}catch(x){}render()});
+document.addEventListener('click',e=>{
+ const t=e.target.closest('[data-c]'),i=e.target.id;
+ if(t){cf=t.dataset.c==='*'?null:t.dataset.c;render()}
+ else if(i==='cdel'&&cf&&cf!=='_'){C.cats=C.cats.filter(c=>c!==cf);Object.keys(C.map).forEach(k=>{if(C.map[k]===cf)delete C.map[k]});cf=null;save();render()}
+ else if(i==='padd'){const v=parseFloat($('#pin').value.replace(',','.'));if(!(v>0)||!sel)return;P[sel]={b:v,d:new Date().toLocaleDateString('sv-SE')};save();render()}
+ else if(i==='pdel'){delete P[sel];save();render()}
+ else if(i==='tgsave'){if(!sel)return;const b=parseFloat($('#tgb').value.replace(',','.')),v=parseFloat($('#tgs').value.replace(',','.'));if(b>0||v>0)TG[sel]={buy:b>0?b:null,sell:v>0?v:null};else delete TG[sel];save();msg('Objectifs enregistrés.');render()}
+ else if(i==='cnew'){const n=$('#cin').value.trim();if(!n||!sel)return;if(!C.cats.includes(n))C.cats.push(n);C.map[sel]=n;save();render()}
+});
+document.addEventListener('click',e=>{
+ const jd=e.target.closest('[data-jd]'),sx=e.target.closest('[data-sdel]'),i=e.target.id;
+ if(jd){J=J.filter(o=>String(o.id)!==jd.dataset.jd);save();render()}
+ else if(sx){const[d0,t0]=sx.dataset.sdel.split('|'),k=sel;S=S.filter(s=>!(s.c.toLowerCase()===k&&s.d===d0&&s.t===t0));D=D.filter(q=>!(q.card.toLowerCase()===k&&q.date===d0&&q.t===t0&&q.s&&!q.u));save();render()}
+ else if(i==='psell'){const v=parseFloat($('#psin').value.replace(',','.')),o=P[sel],g=groups()[sel];if(!(v>0)||!o||!g)return;J.push({id:Date.now(),k:sel,c:g.name,b:o.b,p:v,d:new Date().toLocaleDateString('sv-SE')});delete P[sel];save();render()}
+ else if(i==='imdel'){delete IM[sel];save();render()}else if(i==='prune'){const lim=Date.now()-60*864e5,n0=S.length+D.length,tr=o=>new Date(o.date+'T'+(o.t||'12:00')).getTime(),lr={};D.forEach(o=>{const k=o.card.toLowerCase();if(!lr[k]||tr(o)>=tr(lr[k]))lr[k]=o});S=S.filter(s=>ts(s)>=lim);D=D.filter(o=>!o.s||tr(o)>=lim||lr[o.card.toLowerCase()]===o);save();render();msg((n0-S.length-D.length)+' anciennes lignes supprimées.')}else if(i==='kdel'){cd=sel;render()}
+ else if(i==='kno'){cd=null;render()}
+ else if(i==='kyes'){const k=sel;D=D.filter(q=>q.card.toLowerCase()!==k);S=S.filter(q=>q.c.toLowerCase()!==k);V=V.filter(q=>q.c.toLowerCase()!==k);delete C.map[k];delete P[k];delete TG[k];delete IM[k];cd=null;sel=null;save();render()}
+});
+document.addEventListener('click',e=>{const n=e.target.closest('[data-v]');if(!n)return;vw=n.dataset.v;sel=null;render();scrollTo(0,0)});
+document.addEventListener('change',e=>{const c=e.target.dataset&&e.target.dataset.cm;if(c){const b=CM||cmDef;CM=e.target.checked?[...new Set([...b,c])]:b.filter(k=>k!==c);try{localStorage.setItem('wm-cmp',JSON.stringify(CM))}catch(x){}render()}});
+document.addEventListener('change',e=>{if(e.target.id==='csel'&&sel){if(e.target.value)C.map[sel]=e.target.value;else delete C.map[sel];save();render()}});
+document.addEventListener('change',e=>{if(e.target.id==='inc'||e.target.id==='inc2'){inc=e.target.checked;try{localStorage.setItem('wm-inc',inc?'1':'0')}catch(x){}render()}});
+$('#pb').onclick=()=>{const t=$('#pg').value.trim(),b=t&&cap('',t);if(b){ingest(b);$('#pg').value=''}else msg('Aucune annonce reconnue dans ce texte.')};
+const iv=setInterval(()=>{if(!document.querySelectorAll)return;document.querySelectorAll('.cd').forEach(el=>{const r=(+el.dataset.e-Date.now())/1000;el.textContent=r>0?fd(r):'terminée'})},1000);iv.unref&&iv.unref();
+let syT=0,syN=0;
+const syncNow=()=>{
+ const a=document.activeElement;
+ if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.type!=='checkbox'&&syN++<8){syT=setTimeout(syncNow,4000);return}
+ syN=0;
+ const ld=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(x){return d}};
+ D=ld(K,[]);S=ld('wm-snap-v1',[]);V=ld('wm-ventes-v1',[]);P=ld('wm-pos-v1',{});TG=ld('wm-tg-v1',{});J=ld('wm-jrn-v1',[]);IM=ld('wm-img-v1',{});
+ const c=ld('wm-cat-v1',null);if(c&&c.cats)C=c;
+ const en=ld('wm-end-v1',null);if(en){E=en;E.seen=E.seen||[];E.last=E.last||[];E.al=E.al||[]}
+ try{inc=localStorage.getItem('wm-inc')==='1'}catch(x){}
+ render();
+};
+addEventListener('storage',e=>{if(e.storageArea!==localStorage||(e.key&&!/^wm-(prix|snap|end|ventes|cat|pos|tg|jrn|img|inc)/.test(e.key)))return;clearTimeout(syT);syN=0;syT=setTimeout(syncNow,400);if(e.key==='wm-snap-v1')try{msg('Nouveau relevé reçu.')}catch(x){}});
+render();fh();addEventListener('hashchange',fh);
+</script>
+
+</body></html>
